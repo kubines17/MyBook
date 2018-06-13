@@ -8,16 +8,16 @@ var fs = require('fs')
 
 module.exports = function(app){
 	router.get('/:id', function(req, res){
-		fs.readFile('./zoo.json', function (err, data){
+		fs.readFile('./db.json', function (err, data){
 			if(err){
 				res.send({
-					"message": "Can not read file",
-					"Ststus": "fail"
+					"success": "false", 
+					"message": "No find db"
 				})
 			}
 			var json = JSON.parse(data)
 			var found =false
-			for (let elem of json) {
+			for (let elem of json.posts) {
 				if(elem.id == req.params.id) {
 					found = true
 					elem.status = "fail"
@@ -26,11 +26,11 @@ module.exports = function(app){
 			}
 			if(!found){
 				res.send({
-					"message": "No such id",
-					"Ststus": "fail"
+					"success": "false", 
+					"message": "No such book id"
 				})
 			}
 		});
 	});
-	app.use('/find', router);
+	app.use('/get/book', router);
 };
