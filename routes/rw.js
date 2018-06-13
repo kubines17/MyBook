@@ -8,6 +8,8 @@ var fs = require('fs')
 
 module.exports = function(app){
 	router.get('/:id', function(req, res){
+		//var url = "http://localhost:3000/remove?id=*page*"
+		//var Id = query.replace('*page*', req.params.id)
 		fs.readFile('./db.json', function (err, data){
 			if(err){
 				res.send({
@@ -17,11 +19,15 @@ module.exports = function(app){
 			}
 			var json = JSON.parse(data)
 			var found =false
+			var schet = 0
 			for (let elem of json.posts) {
 				if(elem.id == req.params.id) {
-					found = true
-					res.send(elem)
+				console.log(schet)
+				found = true;
+				json.posts.splice(schet, 1);
+				break
 				}
+				schet++
 			}
 			if(!found){
 				res.send({
@@ -29,13 +35,19 @@ module.exports = function(app){
 					"message": "No such book id"
 				})
 			}
+			fs.writeFile('./db.json', JSON.stringify(json), function(err){
+				res.send({
+					"message": "Data deleted",
+					"status": "success"
+				})
+			});
 		});
 	});
-	app.use('/get/book', router);
+	app.use('/remove', router);
 };
 
 module.exports = function(app){
-	router.get('/all', function(req, res){
+	router.get('/', function(req, res){
 		fs.readFile('./db.json', function (err, data){
 			if(err){
 				res.send({
@@ -44,21 +56,20 @@ module.exports = function(app){
 				})
 			}
 			var json = JSON.parse(data)
-			var found =false
-			for (let elem of json.posts) {
-				if(elem.id != null) {
-					found = true
-					res.send(json.posts)
-					break
-				}
-			}
-			if(!found){
+
+			json.posts.push({
+				"id": req.params.id,
+				"name": req.params.name,
+				"type": req.params.type,
+				"room": req.params.room
+			})
+			fs.writeFile('./db.json', JSON.stringify(json), function(err){
 				res.send({
-					"success": "false", 
-					"message": "No books in database"
+					"message": "Data added",
+					"status": "success"
 				})
-			}
+			});
 		});
 	});
-	app.use('/get', router);
+	app.use('/add', router);
 };
