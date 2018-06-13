@@ -34,3 +34,34 @@ module.exports = function(app){
 	});
 	app.use('/get/book', router);
 };
+
+module.exports = function(app){
+	router.get('/all', function(req, res){
+		fs.readFile('./db.json', function (err, data){
+			if(err){
+				res.send({
+					"success": "false", 
+					"message": "No find db"
+				})
+			}
+			var json = JSON.parse(data)
+			var found =false
+			for (let elem of json.posts) {
+				if(elem.id == 1) {
+					console.log("nnn")
+					found = true
+					elem.status = "fail"
+					res.send(json.posts)
+					break
+				}
+			}
+			if(!found){
+				res.send({
+					"success": "false", 
+					"message": "No books in database"
+				})
+			}
+		});
+	});
+	app.use('/get', router);
+};
